@@ -19,6 +19,7 @@ library(dplyr)
 sf_trees <- read_csv(here("data", "sf_trees", "sf_trees.csv"))
 ```
 
+
 ### Basic Wrangling Reminders
 
 Refresh some skills for data wrangling and summary statistics using functions in the 'dplyr' package
@@ -32,4 +33,42 @@ top_5_status <- sf_trees %>%
   relocate(tree_count) %>% # moved tree count to be the first column
   slice_max(tree_count, n = 5) #selecting top 5 groups for tree counts
 ```
+
+Make a graph of top 5 observations
+
+```{r}
+ggplot(data = top_5_status, aes(x = fct_reorder(legal_status, tree_count), y= tree_count)) +
+    geom_col() + #fct_reorder reorders the bars to be in order from low to high tree count based on legal status
+  labs(x = "Legal Status", y = "Tree Count") +
+  coord_flip() +
+  theme_minimal()
+```
+
+### A few more data wrangling refreshers
+
+Only want to keep observations (rows) for blackwood acacia
+
+```{r}
+blackwood_acacia <- sf_trees %>% 
+  filter(str_detect(species, "Blackwood Acacia")) %>%  #filter to only keep rows where within the species variable there is the phrase 'Blackwood Acacia'
+  select(legal_status, date, latitude, longitude)
+
+ggplot(data = blackwood_acacia, aes(x=longitude, y = latitude)) +
+  geom_point() 
+```
+
+### tidyr:: separate() and unite() functions
+
+```{r}
+sf_trees_sep <- sf_trees %>% 
+  separate(species, into = c("spp_scientific", "spp_common"), sep = "::")
+```
+
+Example of tidyr:: unite()
+
+```{r}
+sf_trees_unite <- sf_trees %>% 
+  unite("id_status", tree_id: legal_status, sep = "_cool!_")
+```
+
 
